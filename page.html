@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Juego de Clicks</title>
+    <style type="text/css">
+      #progress {
+        display: block;
+        height: 20px;
+        width: 30px;
+        background-color: green;
+        color: white;
+        text-align: right;
+      }
+      #progress:hover {
+        cursor: pointer;
+      }
+      #win {
+        height: 20px;
+        width: 30px;
+        border-right: 1px black solid;
+        padding-right: 2px;
+        color: black;
+        text-align: right;
+      }
+
+      #users small {
+        margin-right: 5px;
+      }
+
+      .right{
+          display: flex;
+          justify-content: flex-end;
+      }
+
+      #chat {
+        display: flex;
+        justify-content: flex-end;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-self: flex-end;
+        max-width: 1000px;
+      }
+
+      #message-container{
+          min-height: 400px;
+      }
+
+      #send-container{
+          text-align: right;
+      }
+
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script type="text/javascript">
+      window.onload = function () {
+        var welcome = document.getElementById("welcome");
+        var allUsers = document.getElementById("users");
+        var progress = document.getElementById("progress");
+        var results = document.getElementById("results");
+        const wins = document.getElementById("win");
+        const who = document.getElementById("who");
+        const userSpan = document.getElementById("user");
+        const clicksCont = document.getElementById("clicks");
+
+        var socket = io();
+        socket.on("welcome", function (data) {
+          console.log(data);
+          welcome.innerHTML =
+            "Bienvenido al juego <strong>" + data.name + "</strong>";
+        });
+
+        socket.on("users", function (data) {
+          allUsers.innerHTML = "<strong>Usuarios:</strong>" + data.users;
+        });
+
+        socket.on("clicks", function (clicks) {
+          const width = `${30 * (clicks - 20 + 1)}px`;
+          progress.style.width = width;
+
+          clicksCont.innerHTML = clicks;
+        });
+
+        socket.on("whoHasClicked", function (user) {
+          who.innerHTML = `Usuario ${user.name} ha hecho click!`;
+        });
+
+        socket.on("whoWins", function (user) {
+          console.log("jasd");
+          userSpan.innerHTML = `${user.name} gana`;
+        });
+
+        progress.addEventListener("click", function () {
+          socket.emit("click");
+        });
+      };
+    </script>
+  </head>
+  <body class="main">
+    <div id="welcome"></div>
+    <hr />
+    <div id="progress">
+      <span id="clicks"> 20 </span>
+    </div>
+    <div id="win">
+      30
+    </div>
+    <hr />
+    <div id="user"></div>
+    <div id="users"></div>
+    <hr />
+    <div id="who"></div>
+    <hr />
+    <div id="results"></div>
+
+    <div class="right">
+        <div id="chat">
+          <div id="message-container"></div>
+          <form id="send-container">
+            <input type="text" id="message-input" />
+            <button type="submit" id="send-button">Enviar</button>
+          </form>
+        </div>
+
+    </div>
+  </body>
+</html>
